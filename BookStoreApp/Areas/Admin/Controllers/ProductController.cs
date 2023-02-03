@@ -80,13 +80,30 @@ namespace BookStoreApp.Areas.Admin.Controllers
                     var uploads = Path.Combine(wwwRootPath, @"Images\Products");
                     var extension = Path.GetExtension(file.FileName);
 
+                    if (obj.Product.ImageUrl != null)
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath, obj.Product.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
                     using (var fileStreams = new FileStream(Path.Combine(uploads, fileName + extension), FileMode.Create))
                     {
                         file.CopyTo(fileStreams);
                     }
                     obj.Product.ImageUrl = @"\Images\Products\" + fileName + extension;
                 }
+                if(obj.Product.Id == 0)
+                {
                 _unitOfWork.Product.Add(obj.Product);
+
+                }
+                else
+                {
+                    _unitOfWork.Product.Update(obj.Product);
+                }
                 _unitOfWork.Save();
                 TempData["success"] = "Product created successfully";
                 return RedirectToAction("Index");
@@ -96,39 +113,9 @@ namespace BookStoreApp.Areas.Admin.Controllers
 
         }
 
-        //GET
-        public IActionResult Delete(int? id)
-        {
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
-            //var coverTypeFromDb = _db.CoverType.Find(id);
-            var coverTypeFromDbFirst = _unitOfWork.CoverType.GetFirstOrDefault(c => c.Id == id);
-            if (coverTypeFromDbFirst == null)
-            {
-                return NotFound();
-            }
-            return View(coverTypeFromDbFirst);
-        }
+        
 
-        //POST
-        [HttpPost]
-        [AutoValidateAntiforgeryToken]
-        public IActionResult DeletePOST(int? id)
-        {
-            var obj = _unitOfWork.CoverType.GetFirstOrDefault(c => c.Id == id);
-            if (obj == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.CoverType.Remove(obj);
-            _unitOfWork.Save();
-            TempData["success"] = "Product deleted successfully";
-            return RedirectToAction("Index");
-
-
-        }
+        
 
         #region API CALLS
         [HttpGet]
@@ -137,8 +124,32 @@ namespace BookStoreApp.Areas.Admin.Controllers
             var productList = _unitOfWork.Product.GetAll(includeProperties:"Category,CoverType");
             return Json(new { data = productList });
         }
-       #endregion
+
+        //POST
+        [HttpDelete]
         
+        public IActionResult Delete(int? id)
+        {
+            var obj = _unitOfWork.Product.GetFirstOrDefault(c => c.Id == id);
+            if (obj == null)
+            {
+                return Json(new {success = false, message = "Error while deleting"});
+            }
+            var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('\\'));
+            if (System.IO.File.Exists(oldImagePath))
+            {
+                System.IO.File.Delete(oldImagePath);
+            }
+
+            _unitOfWork.Product.Remove(obj);
+            _unitOfWork.Save();
+             return Json(new {success = true, message = "Delete Successful"});
+      
+
+        }
+
+        #endregion
+
 
     } 
 }
