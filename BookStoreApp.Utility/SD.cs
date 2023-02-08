@@ -8,6 +8,9 @@ namespace BookStor.Utility
 {
     public static class SD
     {
-        // A place to store all the constants of our application.
+        public const string Role_User_Indi = "Individual";
+        public const string Role_User_Comp = "Company";
+        public const string Role_Admin = "Admin";
+        public const string Role_Employee = "Employee";
     }
 }
