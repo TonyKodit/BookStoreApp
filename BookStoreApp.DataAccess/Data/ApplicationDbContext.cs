@@ -21,6 +21,8 @@ namespace BookStore.DataAccess
 
         public DbSet<Company> Companies { get; set; }
 
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+
     }
 
 }
