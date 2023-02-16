@@ -11,7 +11,7 @@ namespace BookStore.Models
 {
     public class Product
     {
-       
+        
         public int Id { get; set; }
 
         [Required]

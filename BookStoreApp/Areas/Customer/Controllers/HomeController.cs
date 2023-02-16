@@ -32,7 +32,7 @@ namespace BookStoreApp.Areas.Customer.Controllers
             {
                 Count = 1,
                 ProductId = productId,
-                Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == , includeProperties: "Category,CoverType"),
+                Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId , includeProperties: "Category,CoverType"),
             };
 
             return View(cartObj);
@@ -47,7 +47,19 @@ namespace BookStoreApp.Areas.Customer.Controllers
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
             shoppingCart.ApplicationUserId = claim.Value;
 
-            _unitOfWork.ShoppingCart.Add(shoppingCart);
+            ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(
+                u => u.ApplicationUserId == claim.Value && u.ProductId == shoppingCart.ProductId);
+                
+
+            if (cartFromDb == null)
+            {
+                _unitOfWork.ShoppingCart.Add(shoppingCart);
+            }
+            else
+            {
+                _unitOfWork.ShoppingCart.IncrementCount(cartFromDb,shoppingCart.Count);
+            }
+            
             _unitOfWork.Save();
 
             return RedirectToAction(nameof(Index));
