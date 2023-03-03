@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookStoreApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230226215841_AddOrderHeaderandDetailToDb")]
-    partial class AddOrderHeaderandDetailToDb
+    [Migration("20230301111308_AddOrderHeadersAndDetailsToDb")]
+    partial class AddOrderHeadersAndDetailsToDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -108,9 +108,6 @@ namespace BookStoreApp.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
-                    b.Property<int>("OderId")
-                        .HasColumnType("int");
-
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
@@ -122,7 +119,7 @@ namespace BookStoreApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OderId");
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -524,7 +521,7 @@ namespace BookStoreApp.Migrations
                 {
                     b.HasOne("BookStore.Models.OrderHeader", "OrderHeader")
                         .WithMany()
-                        .HasForeignKey("OderId")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
